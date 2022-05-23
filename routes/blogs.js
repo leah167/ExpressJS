@@ -14,13 +14,71 @@ router.get('/all', function (req, res, next) {
     res.json(sortBlogs(sort));
 });
 
-router.get("/get-by-id/:blogId", (req, res) => {
+router.get("/singleBlog/:blogId", (req, res, next) => {
     console.log(req.params);
     const blogId = req.params.blogId;
     res.json(findBlogId(blogId));
 });
 
-module.exports = router;
+router.get('/postblog', function (req, res, next){
+    res.render('postBlog');
+})
+
+
+router.post("/submit", (req, res, next) => {
+    res.status(201);
+    let newBlog = addBlogPost(req.body);
+    blogPosts.push(newBlog);
+    console.log(blogPosts)
+});
+
+// router.post("/submit", function (req, res, next) {
+//     console.log(req.body)
+//     console.log("bloglist before ", blogsImport.blogPosts)
+//     const today = new Date()
+//     const newPost = {
+//         title: req.body.title,
+//         text: req.body.text,
+//         author: req.body.author,
+//         createdAt: today.toISOString(),
+//         id: String(blogsImport.blogPosts.length + 1)
+//     }
+//     blogsImport.blogPosts.push(newPost)
+//     console.log("bloglist after ", blogsImport.blogPosts)
+
+//     res.send("OK");
+// })
+
+router.get('/displayBlogs', function (req, res, next) {
+    res.render('displayBlogs');
+});
+
+router.get('/displaySingleBlog', function (req, res, next) {
+    res.render('displaySingleBlog')
+});
+
+// DELETE
+// this api end-point delete an existing item object from
+// array of data, match by `id` find item and then delete
+router.delete('/deleteblog/:blogId', function (req, res, next) {
+    const blogToDelete = req.params.blogId
+
+    for (let i = 0; i < blogPosts.length; i++) {
+        let blog = blogPosts[i];
+        if (blog.id === blogToDelete) {
+            blogPosts.splice(i,1);
+        }
+        
+    }
+
+    res.send('Successfully Deleted')
+});
+
+
+
+
+
+
 
 // Helper Functions
 
@@ -48,3 +106,18 @@ let sortBlogs = (order) => {
         return blogPosts;
     }
 };
+
+let addBlogPost = (body) => {
+    let id = blogPosts.length + 1;
+    newDate = new Date();
+    let blog = {
+      createdAt: newDate.toISOString(),
+      title: body.title,
+      text: body.text,
+      author: body.author,
+      id: id.toString()
+    }
+    return blog
+  }
+
+  module.exports = router;
