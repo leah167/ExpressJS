@@ -10,8 +10,8 @@ router.get('/', function(req, res, next) {
 //   res.send(new Date());
 // });
 
-router.get('/postblog', function (req, res, next){
-  res.render('postBlog');
-})
+// router.get('/postblog', function (req, res, next){
+//   res.render('postBlog');
+// })
 
 module.exports = router;

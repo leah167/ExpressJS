@@ -1,30 +1,123 @@
+
 <!DOCTYPE html>
 <html>
   <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script>
       $(document).ready(function () {
-        var title, text, author;
+        jQuery.each(["put", "delete"], function (i, method) {
+          jQuery[method] = function (url, data, callback, type) {
+            if (jQuery.isFunction(data)) {
+              type = type || callback;
+              callback = data;
+              data = undefined;
+            }
+            return jQuery.ajax({
+              url: url,
+              type: method,
+              dataType: type,
+              data: data,
+              success: callback,
+            });
+          };
+        });
+        var title, text, author, category, id;
+        let clearBlogDataDisplayMessage = function (data) {
+          $("#title").val("");
+          $("#text").val("");
+          $("#author").val("");
+          $("#category").val("");
+          $("#message").html(data);
+        };
         $("#submit").click(function () {
           title = $("#title").val();
           text = $("#text").val();
           author = $("#author").val();
-          $.post(
-            "http://localhost:4000/blogs/submit",
-            { title: title, text: text, author: author }
-          );
+          category = $("#category").val();
+          if (title === "" || text === "" || author === "" || category === "") {
+            let mssg = "To submit a blog please include:<br>";
+            mssg = title === "" ? mssg + "- a title<br>" : mssg;
+            mssg = text === "" ? mssg + "- blog text<br>" : mssg;
+            mssg = author === "" ? mssg + "- an author<br>" : mssg;
+            mssg = category === "" ? mssg + "- a category" : mssg;
+            $("#message").html(mssg);
+          } else {
+            $.post(
+              "http://localhost:4000/blogs/submit",
+              {
+                title: title,
+                text: text,
+                author: author,
+                category: category,
+              },
+              function (data) {
+                clearBlogDataDisplayMessage(data);
+              }
+            );
+          }
+        });
+        $("#update").click(function () {
+          title = $("#title").val();
+          text = $("#text").val();
+          author = $("#author").val();
+          category = $("#category").val();
+          id = $("#id").val();
+          if (!id) {
+            $("#message").html("Please include a blog id to update.");
+          } else {
+            $.put(
+              "http://localhost:4000/blogs/updateBlog/" + id,
+              {
+                title: title,
+                text: text,
+                author: author,
+                category: category,
+              },
+              function (data) {
+                if (data === "does not exist.") {
+                  $("#message").html(`Blog Id: ${id} does not exist.`);
+                } else {
+                  clearBlogDataDisplayMessage(data);
+                }
+              }
+            );
+          }
         });
       });
     </script>
   </head>
   <body>
-    <h1>Add New Blog</h1>
+    <h2>
+      <a href="http://localhost:4000/blogs/displayBlogs">Display Blog</a>
+      <a href="http://localhost:4000/blogs/displaySingleBlog">Display Single Blog</a>
+      <a href="http://localhost:4000/blogs/postBlog">Post Blog</a>
+    </h2>
+    <h1>Update Existing Or Add New Blog</h1>
     <label>Blog Title</label>
     <input id="title" size="40" type="text" />
+    <br />
+    <br />
     <label>Blog Text</label>
-    <input id="text" size="300" type="text" />
+    <input id="text" size="40" type="text" />
+    <br />
+    <br />
     <label>Blog Author</label>
     <input id="author" size="40" type="text" />
-    <input id="submit" type="button" value="Submit" />
+    <br />
+    <br />
+    <label>Blog Category</label>
+    <input id="category" size="40" type="text" />
+    <br />
+    <br />
+    <input id="submit" type="button" value="Add" />
+    <br />
+    <br />
+    <label>Existing Blog ID To Update</label>
+    <input id="id" size="40" type="text" />
+    <br />
+    <br />
+    <input id="update" type="button" value="Update" />
+    <br />
+    <p id="message"></p>
   </body>
 </html>

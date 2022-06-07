@@ -3,9 +3,7 @@
   <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script>
-      
       $(document).ready(function () {
-
         //Ignore the following lines, this is just a helper function to get the PUT and DELETE methods into jQuery
         jQuery.each(["put", "delete"], function (i, method) {
           jQuery[method] = function (url, data, callback, type) {
@@ -24,35 +22,52 @@
             });
           };
         });
-
-        //Start reading from here
         var blogId;
         $("#getSingleBlog").click(function () {
           blogId = $("#blogId").val();
-          $.get(
-            "http://localhost:4000/blogs/singleBlog/" + blogId,
-            function (blog) {
-              $("#blogTitle").html(blog.title);
-              $("#blogAuthor").html(blog.author);
-              $("#blogText").html(blog.text);
-            }
-          );
+          if (!blogId) {
+            $("#blogText").html("Please enter a Blog Id.");
+          } else {
+            $.get(
+              "http://localhost:4000/blogs/singleBlog/" + blogId,
+              function (blog) {
+                $("#displayBlogId").html(blog.id);
+                $("#blogTitle").html(blog.title);
+                $("#blogAuthor").html(blog.author);
+                $("#blogText").html(blog.text);
+              }
+            );
+          }
         });
         $("#deleteSingleBlog").click(function () {
           blogId = $("#blogId").val();
-          console.log("delete blog");
-          $.delete("http://localhost:4000/blogs/deleteBlog/" + blogId, function (data) {
-              $("#blogTitle").html('')
-              $("#blogAuthor").html('')
-              $("#blogText").html(data)
-          })
+          // console.log("delete blog " + blogId);
+          if (!blogId) {
+            $("#blogText").html("Please enter a Blog Id to delete.");
+          } else {
+            $.delete(
+              "http://localhost:4000/blogs/deleteBlog/" + blogId,
+              function (data) {
+                $("#displayBlogId").html("");
+                $("#blogTitle").html("");
+                $("#blogAuthor").html("");
+                $("#blogText").html(data);
+              }
+            );
+          }
         });
       });
-    
     </script>
   </head>
   <body>
     <h1>Single Blog</h1>
+    <h2>
+        <a href="http://localhost:4000/blogs/displayBlogs">Display Blogs</a>
+        <br>
+        <a href="http://localhost:4000/blogs/displaySingleBlog">Display Single Blog</a>
+        <br>
+        <a href="http://localhost:4000/blogs/postBlog">Post Blog</a>
+    </h2>
     <span>
       <label>Blog ID</label>
       <input id="blogId" type="text" />
@@ -60,6 +75,7 @@
     <button id="getSingleBlog">Get Single Blog</button>
     <button id="deleteSingleBlog">Delete Single Blog</button>
     <div>
+        <p id="displayBlogId"></p>
         <p id="blogTitle"></p>
         <p id="blogAuthor"></p>
         <p id="blogText"></p>
